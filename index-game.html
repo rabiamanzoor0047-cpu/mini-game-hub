@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mini Games Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+  <style>
+/* ===== THEME COLORS (change these to restyle the site) ===== */
+:root {
+  --bg1: #1b1464; --bg2: #6a11cb; --bg3: #ff2d95;
+  --panel: rgba(255,255,255,.1); --panel-border: rgba(255,255,255,.22);
+  --text: #fff; --muted: rgba(255,255,255,.75);
+  --accent: #ffd23f; --accent-text: #2a1a00;
+  --good: #3ddc97; --bad: #ff5d73;
+}
+[data-theme="light"] {
+  --bg1: #ffe29f; --bg2: #ffa99f; --bg3: #a5b4ff;
+  --panel: rgba(255,255,255,.65); --panel-border: rgba(0,0,0,.1);
+  --text: #26214a; --muted: #4d4780;
+  --accent: #6a11cb; --accent-text: #fff;
+}
+
+* { box-sizing: border-box; margin: 0; }
+html { scroll-behavior: smooth; scroll-padding-top: 80px; }
+body {
+  font-family: "Nunito", system-ui, sans-serif; color: var(--text); min-height: 100vh;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2), var(--bg3));
+  background-size: 300% 300%; animation: drift 18s ease infinite;
+  display: flex; flex-direction: column;
+}
+@keyframes drift { 50% { background-position: 100% 50%; } }
+h1, h2, .logo { font-family: "Bungee", "Impact", sans-serif; font-weight: 400; }
+button { font: inherit; cursor: pointer; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* ===== NAVBAR ===== */
+.navbar {
+  position: sticky; top: 0; z-index: 10; display: flex; align-items: center; gap: 1rem;
+  padding: .7rem 1.2rem; backdrop-filter: blur(12px); background: var(--panel);
+  border-bottom: 1px solid var(--panel-border);
+}
+.logo { color: var(--text); text-decoration: none; font-size: 1.15rem; margin-right: auto; }
+.menu { display: flex; gap: 1.4rem; }
+.menu a { color: var(--text); text-decoration: none; font-weight: 800; padding: .3rem 0; border-bottom: 3px solid transparent; transition: border-color .2s; }
+.menu a:hover { border-color: var(--accent); }
+.tools { display: flex; gap: .5rem; }
+.icon-btn {
+  width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text); font-size: 1.1rem; transition: transform .2s;
+}
+.icon-btn:hover { transform: rotate(15deg) scale(1.1); }
+.burger { display: none; }
+
+/* ===== BUTTONS ===== */
+.btn {
+  display: inline-block; text-decoration: none; border: 0; border-radius: 999px;
+  padding: .85rem 1.8rem; font-weight: 800; font-size: 1.05rem;
+  background: var(--accent); color: var(--accent-text); box-shadow: 0 6px 0 rgba(0,0,0,.25);
+  transition: transform .15s, box-shadow .15s;
+}
+.btn:hover { transform: translateY(-3px); box-shadow: 0 9px 0 rgba(0,0,0,.25); }
+.btn:active { transform: translateY(4px); box-shadow: 0 2px 0 rgba(0,0,0,.25); }
+.btn.small { padding: .5rem 1.1rem; font-size: .95rem; box-shadow: 0 4px 0 rgba(0,0,0,.25); }
+.btn.ghost { background: var(--panel); color: var(--text); border: 1px solid var(--panel-border); }
+
+/* ===== HERO ===== */
+.hero { position: relative; text-align: center; padding: 5rem 1.2rem 4rem; overflow: hidden; }
+.hero h1 { font-size: clamp(2.8rem, 11vw, 6.5rem); line-height: 1; margin-bottom: 1.2rem; text-shadow: 0 6px 0 rgba(0,0,0,.25); animation: pop .8s cubic-bezier(.2,1.6,.4,1) both; }
+@keyframes pop { from { transform: scale(.6) rotate(-4deg); opacity: 0; } }
+.hero p { max-width: 34rem; margin: 0 auto 2rem; font-size: 1.2rem; color: var(--muted); }
+.floaters span { position: absolute; font-size: 2.2rem; opacity: .5; animation: float 6s ease-in-out infinite; }
+.floaters span:nth-child(1) { left: 8%; top: 20%; }
+.floaters span:nth-child(2) { right: 10%; top: 15%; animation-delay: -1s; }
+.floaters span:nth-child(3) { left: 14%; bottom: 12%; animation-delay: -2s; }
+.floaters span:nth-child(4) { right: 15%; bottom: 14%; animation-delay: -3s; }
+.floaters span:nth-child(5) { left: 48%; top: 6%; animation-delay: -4s; }
+@keyframes float { 50% { transform: translateY(-18px) rotate(10deg); } }
+
+/* ===== SECTIONS & CARDS ===== */
+.section { max-width: 1100px; margin: 0 auto; padding: 3rem 1.2rem; width: 100%; }
+.section h2 { font-size: clamp(1.6rem, 5vw, 2.4rem); margin-bottom: 1.5rem; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.4rem; }
+.card {
+  background: var(--panel); border: 1px solid var(--panel-border); border-radius: 22px;
+  padding: 1.5rem; text-align: center; display: flex; flex-direction: column; align-items: center; gap: .7rem;
+  transition: transform .25s, box-shadow .25s;
+}
+.card:hover { transform: translateY(-8px) rotate(-1deg); box-shadow: 0 18px 35px rgba(0,0,0,.3); }
+.card .icon {
+  width: 90px; height: 90px; border-radius: 26px; display: grid; place-items: center; font-size: 3rem;
+  background: linear-gradient(135deg, var(--c1), var(--c2)); transition: transform .3s;
+}
+.card:hover .icon { transform: scale(1.12) rotate(8deg); }
+.card h3 { font-size: 1.3rem; }
+.card p { color: var(--muted); font-size: .95rem; flex: 1; }
+.card small { color: var(--accent); font-weight: 800; }
+.about p { max-width: 42rem; font-size: 1.1rem; line-height: 1.7; color: var(--muted); }
+
+/* ===== CONTACT FORM ===== */
+.contact { display: grid; gap: .9rem; max-width: 520px; }
+.contact input, .contact textarea {
+  font: inherit; padding: .85rem 1rem; border-radius: 14px; border: 1px solid var(--panel-border);
+  background: var(--panel); color: var(--text);
+}
+.contact ::placeholder { color: var(--muted); }
+.contact .btn { justify-self: start; }
+#formMsg { font-weight: 800; }
+
+/* ===== PLAY SECTION ===== */
+.play { max-width: 760px; width: 100%; margin: 0 auto; padding: 1.5rem 1.2rem 3rem; animation: pop .4s both; }
+.play[hidden] { display: none; }
+.play-bar { display: flex; align-items: center; justify-content: space-between; gap: .6rem; flex-wrap: wrap; margin-bottom: 1rem; }
+.play-bar h2 { font-size: clamp(1.2rem, 4vw, 1.8rem); text-align: center; flex: 1; }
+.stats { display: flex; gap: .7rem; flex-wrap: wrap; justify-content: center; margin-bottom: 1.2rem; }
+.stat { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 16px; padding: .5rem 1.1rem; text-align: center; min-width: 90px; }
+.stat b { display: block; font-size: 1.5rem; color: var(--accent); }
+.stat span { font-size: .8rem; color: var(--muted); }
+.area { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 24px; padding: 1.4rem; text-align: center; }
+.msg { min-height: 1.8rem; margin: .8rem 0; font-weight: 800; font-size: 1.2rem; }
+.win { color: var(--good); } .lose { color: var(--bad); }
+
+/* Tic Tac Toe */
+.ttt { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: min(100%, 330px); margin: 0 auto; }
+.cell { aspect-ratio: 1; border-radius: 16px; border: 0; font-size: clamp(2rem, 12vw, 3.5rem); font-family: "Bungee", sans-serif; background: var(--panel-border); color: var(--text); transition: transform .15s, background .2s; }
+.cell:hover:not(:disabled) { transform: scale(1.06); background: rgba(255,255,255,.3); }
+.cell.x { color: #4cc9f0; } .cell.o { color: #ff5d73; }
+.cell.line { background: var(--good); animation: pop .5s; }
+
+/* Rock Paper Scissors */
+.rps { display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.rps button { font-size: 3rem; width: 100px; height: 100px; border-radius: 50%; border: 0; background: var(--panel-border); transition: transform .2s; }
+.rps button:hover { transform: scale(1.15) rotate(-6deg); }
+.versus { font-size: 3.5rem; display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+.versus .shake { animation: shake .5s; }
+@keyframes shake { 25% { transform: translateY(-20px) rotate(-12deg); } 75% { transform: translateY(-20px) rotate(12deg); } }
+
+/* Snake */
+canvas { width: 100%; max-width: 400px; aspect-ratio: 1; border-radius: 16px; background: #14123a; touch-action: none; }
+.dpad { display: grid; grid-template-columns: repeat(3, 60px); gap: 6px; justify-content: center; margin-top: 1rem; }
+.dpad button { height: 52px; border-radius: 14px; border: 0; background: var(--panel-border); color: var(--text); font-size: 1.4rem; }
+.dpad button:active { background: var(--accent); color: var(--accent-text); }
+.dpad .up { grid-column: 2; } .dpad .left { grid-column: 1; grid-row: 2; } .dpad .down { grid-column: 2; grid-row: 2; } .dpad .right { grid-column: 3; grid-row: 2; }
+
+/* Number Guessing */
+.guess { display: flex; gap: .6rem; justify-content: center; flex-wrap: wrap; }
+.guess input { font: inherit; width: 140px; padding: .7rem; text-align: center; font-size: 1.4rem; border-radius: 14px; border: 2px solid var(--panel-border); background: var(--panel); color: var(--text); }
+
+/* Memory */
+.memory { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; width: min(100%, 400px); margin: 0 auto; }
+.mcard { aspect-ratio: 1; perspective: 600px; border: 0; background: none; padding: 0; }
+.mcard .inner { position: relative; width: 100%; height: 100%; transition: transform .5s; transform-style: preserve-3d; display: block; }
+.mcard.flipped .inner { transform: rotateY(180deg); }
+.mcard .face { position: absolute; inset: 0; border-radius: 14px; display: grid; place-items: center; backface-visibility: hidden; font-size: clamp(1.6rem, 9vw, 2.6rem); }
+.mcard .front { background: linear-gradient(135deg, #ff2d95, #6a11cb); color: #fff; }
+.mcard .back { background: #fff; transform: rotateY(180deg); }
+.mcard.matched .back { background: var(--good); }
+
+footer { text-align: center; padding: 1.5rem; color: var(--muted); margin-top: auto; }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 700px) {
+  .burger { display: block; }
+  .menu { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: var(--bg1); border-bottom: 1px solid var(--panel-border); }
+  .menu.open { display: flex; }
+  .menu a { padding: 1rem 1.4rem; border: 0; }
+  [data-theme="light"] .menu { background: #fff4d6; }
+  .hero { padding-top: 3.5rem; }
+}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+</style>
+</head>
+<body>
+
+  <!-- ===== NAVIGATION BAR ===== -->
+  <header class="navbar">
+    <a href="#home" class="logo" data-go="home">🕹️ Mini Games Hub</a>
+    <nav id="menu" class="menu">
+      <a href="#home" data-go="home">Home</a>
+      <a href="#games" data-go="games">Games</a>
+      <a href="#about" data-go="about">About</a>
+      <a href="#contact" data-go="contact">Contact</a>
+    </nav>
+    <div class="tools">
+      <button id="soundBtn" class="icon-btn" aria-label="Toggle sound" title="Sound on/off">🔊</button>
+      <button id="themeBtn" class="icon-btn" aria-label="Toggle dark/light mode" title="Dark/light mode">🌙</button>
+      <button id="burger" class="icon-btn burger" aria-label="Open menu">☰</button>
+    </div>
+  </header>
+
+  <!-- ===== MAIN SITE (hidden while a game is open) ===== -->
+  <main id="site">
+    <section id="home" class="hero">
+      <h1>Mini Games<br>Hub</h1>
+      <p>Five classic games. Zero downloads. Pick one and beat your high score.</p>
+      <a href="#games" class="btn" data-go="games">Choose a game</a>
+      <div class="floaters" aria-hidden="true"><span>🎮</span><span>👾</span><span>🐍</span><span>🃏</span><span>🎲</span></div>
+    </section>
+
+    <section id="games" class="section">
+      <h2>Pick a game</h2>
+      <div id="grid" class="grid"></div>
+    </section>
+
+    <section id="about" class="section about">
+      <h2>About</h2>
+      <p>Mini Games Hub is built with plain HTML, CSS and JavaScript. There are no frameworks and no installs. Your high scores are saved in this browser with localStorage, so they are still here when you come back.</p>
+    </section>
+
+    <section id="contact" class="section">
+      <h2>Contact</h2>
+      <form id="contactForm" class="contact" novalidate>
+        <input id="cName" placeholder="Your name" aria-label="Your name">
+        <input id="cEmail" type="email" placeholder="Your email" aria-label="Your email">
+        <textarea id="cMsg" rows="4" placeholder="Your message" aria-label="Your message"></textarea>
+        <button class="btn" type="submit">Send message</button>
+        <p id="formMsg" role="status"></p>
+      </form>
+    </section>
+  </main>
+
+  <!-- ===== GAME PLAY SECTION (one game at a time) ===== -->
+  <section id="play" class="play" hidden>
+    <div class="play-bar">
+      <button id="backBtn" class="btn small ghost">← All games</button>
+      <h2 id="playTitle"></h2>
+      <button id="restartBtn" class="btn small">↻ Restart</button>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div id="area" class="area"></div>
+  </section>
+
+  <footer>Made for fun · Mini Games Hub</footer>
+
+  <script>
+/* =========================================================
+   MINI GAMES HUB - script.js
+   Sections: 1) helpers  2) sound  3) the five games
+             4) site navigation  5) theme / sound / contact
+   Every game is a function: game(area, ui) that builds its own
+   HTML inside `area` and returns { restart, stop }.
+   ========================================================= */
+'use strict';
+
+/* ---------- 1) HELPERS ---------- */
+const $ = s => document.querySelector(s);
+
+// Safe localStorage wrapper (keeps working even if storage is blocked)
+const store = {
+  get(key, fallback) {
+    try { const v = localStorage.getItem('mgh_' + key); return v === null ? fallback : JSON.parse(v); }
+    catch { return fallback; }
+  },
+  set(key, value) {
+    try { localStorage.setItem('mgh_' + key, JSON.stringify(value)); } catch { /* ignore */ }
+  }
+};
+
+/* ---------- 2) SOUND (made with the Web Audio API, no files needed) ---------- */
+let soundOn = store.get('sound', true);
+let audioCtx;
+
+function tone(freq, dur = 0.12, type = 'sine', delay = 0) {
+  if (!soundOn) return;
+  try {
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    const t = audioCtx.currentTime + delay;
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0.15, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(t); osc.stop(t + dur);
+  } catch { /* audio not supported */ }
+}
+const sfx = {
+  click: () => tone(520, 0.08, 'square'),
+  flip:  () => tone(660, 0.06, 'triangle'),
+  eat:   () => tone(880, 0.08, 'square'),
+  draw:  () => tone(330, 0.25, 'triangle'),
+  win:   () => [523, 659, 784, 1047].forEach((f, i) => tone(f, 0.18, 'triangle', i * 0.12)),
+  lose:  () => [300, 240, 180].forEach((f, i) => tone(f, 0.2, 'sawtooth', i * 0.14))
+};
+
+/* ---------- 3) THE GAMES ---------- */
+
+/* ===== TIC TAC TOE (you = X, computer = O) ===== */
+function ticTacToe(area, ui) {
+  const LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  const score = { you: 0, cpu: 0, draw: 0 };
+  const set = ui.stats([['you','You (X)'], ['cpu','CPU (O)'], ['draw','Draws'], ['best','Best wins']]);
+  let board, over, busy, timer, cells, msg;
+
+  const refresh = () => {
+    set('you', score.you); set('cpu', score.cpu); set('draw', score.draw); set('best', store.get('ttt', 0));
+  };
+  const winLine = p => LINES.find(l => l.every(i => board[i] === p));
+
+  function mark(i, p) {
+    board[i] = p;
+    cells[i].textContent = p;
+    cells[i].className = 'cell ' + p.toLowerCase();
+    cells[i].disabled = true;
+    sfx.click();
+  }
+
+  // Returns true if the game just ended
+  function checkEnd() {
+    const line = winLine('X') || winLine('O');
+    if (line) {
+      over = true;
+      line.forEach(i => cells[i].classList.add('line'));
+      cells.forEach(c => c.disabled = true);
+      const you = board[line[0]] === 'X';
+      score[you ? 'you' : 'cpu']++;
+      msg.textContent = you ? 'You win! 🎉' : 'CPU wins 🤖';
+      msg.className = 'msg ' + (you ? 'win' : 'lose');
+      if (you) { sfx.win(); if (score.you > store.get('ttt', 0)) store.set('ttt', score.you); } else sfx.lose();
+      refresh(); return true;
+    }
+    if (!board.includes(null)) {
+      over = true; score.draw++;
+      msg.textContent = "It's a draw!"; msg.className = 'msg';
+      sfx.draw(); refresh(); return true;
+    }
+    return false;
+  }
+
+  // Simple AI: win if possible, else block you, else take center, else random
+  function cpuMove() {
+    const empty = board.map((v, i) => v ? null : i).filter(i => i !== null);
+    const findWin = p => empty.find(i => { board[i] = p; const w = !!winLine(p); board[i] = null; return w; });
+    let m = findWin('O');
+    if (m === undefined) m = findWin('X');
+    if (m === undefined && !board[4]) m = 4;
+    if (m === undefined) m = empty[Math.floor(Math.random() * empty.length)];
+    mark(m, 'O');
+    checkEnd();
+  }
+
+  function start() {
+    clearTimeout(timer);
+    board = Array(9).fill(null); over = false; busy = false;
+    area.innerHTML = '<div class="ttt">' + '<button class="cell" aria-label="Empty cell"></button>'.repeat(9) + '</div><p class="msg">Your turn: you are X</p>';
+    cells = [...area.querySelectorAll('.cell')];
+    msg = area.querySelector('.msg');
+    cells.forEach((c, i) => c.addEventListener('click', () => {
+      if (over || busy || board[i]) return;
+      mark(i, 'X');
+      if (!checkEnd()) { busy = true; timer = setTimeout(() => { cpuMove(); busy = false; }, 400); }
+    }));
+    refresh();
+  }
+  start();
+  return { restart: start, stop: () => clearTimeout(timer) };
+}
+
+/* ===== ROCK PAPER SCISSORS ===== */
+function rockPaperScissors(area, ui) {
+  const MOVES = ['🪨', '📄', '✂️'];
+  const names = ['Rock', 'Paper', 'Scissors'];
+  const set = ui.stats([['win','Wins'], ['lose','Losses'], ['streak','Streak'], ['best','Best streak']]);
+  let wins = 0, losses = 0, streak = 0, timer;
+
+  const refresh = () => { set('win', wins); set('lose', losses); set('streak', streak); set('best', store.get('rps', 0)); };
+
+  function start() {
+    clearTimeout(timer); wins = losses = streak = 0;
+    area.innerHTML = `<p class="msg">Choose your move</p>
+      <div class="rps">${MOVES.map((m, i) => `<button data-i="${i}" aria-label="${names[i]}">${m}</button>`).join('')}</div>
+      <div class="versus"><span class="you">❔</span><span>⚡</span><span class="cpu">❔</span></div>`;
+    const msg = area.querySelector('.msg'), youEl = area.querySelector('.you'), cpuEl = area.querySelector('.cpu');
+    area.querySelectorAll('.rps button').forEach(btn => btn.addEventListener('click', () => {
+      const p = +btn.dataset.i, c = Math.floor(Math.random() * 3);
+      youEl.textContent = cpuEl.textContent = '✊';
+      youEl.classList.remove('shake'); void youEl.offsetWidth; // restart the shake animation
+      youEl.classList.add('shake'); cpuEl.classList.add('shake');
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        youEl.textContent = MOVES[p]; cpuEl.textContent = MOVES[c];
+        const d = (p - c + 3) % 3; // 0 = tie, 1 = you win, 2 = you lose
+        if (d === 1) {
+          wins++; streak++; msg.textContent = 'You win this round!'; msg.className = 'msg win'; sfx.win();
+          if (streak > store.get('rps', 0)) store.set('rps', streak);
+        } else if (d === 2) {
+          losses++; streak = 0; msg.textContent = 'CPU wins this round'; msg.className = 'msg lose'; sfx.lose();
+        } else { msg.textContent = 'Tie!'; msg.className = 'msg'; sfx.draw(); }
+        refresh();
+      }, 500);
+    }));
+    refresh();
+  }
+  start();
+  return { restart: start, stop: () => clearTimeout(timer) };
+}
+
+/* ===== SNAKE ===== */
+function snakeGame(area, ui) {
+  const N = 20; // 20 x 20 grid
+  const set = ui.stats([['score','Score'], ['best','High score']]);
+  area.innerHTML = `<canvas width="400" height="400" aria-label="Snake game board"></canvas>
+    <p class="msg"></p>
+    <div class="dpad">
+      <button class="up" data-d="0,-1" aria-label="Up">▲</button><button class="left" data-d="-1,0" aria-label="Left">◀</button>
+      <button class="down" data-d="0,1" aria-label="Down">▼</button><button class="right" data-d="1,0" aria-label="Right">▶</button>
+    </div>`;
+  const cv = area.querySelector('canvas'), ctx = cv.getContext('2d'), msg = area.querySelector('.msg');
+  const S = cv.width / N;
+  let snake, dir, next, food, score, timer, alive;
+
+  function placeFood() {
+    do { food = { x: Math.floor(Math.random() * N), y: Math.floor(Math.random() * N) }; }
+    while (snake.some(s => s.x === food.x && s.y === food.y));
+  }
+
+  function draw() {
+    ctx.fillStyle = '#14123a'; ctx.fillRect(0, 0, cv.width, cv.height);
+    ctx.fillStyle = '#ff5d73';
+    ctx.beginPath(); ctx.arc(food.x * S + S / 2, food.y * S + S / 2, S / 2 - 2, 0, Math.PI * 2); ctx.fill();
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? '#ffd23f' : '#3ddc97';
+      ctx.fillRect(s.x * S + 1, s.y * S + 1, S - 2, S - 2);
+    });
+  }
+
+  function step() {
+    dir = next;
+    const head = { x: snake[0].x + dir.x, y: snake[0].y + dir.y };
+    const hitWall = head.x < 0 || head.y < 0 || head.x >= N || head.y >= N;
+    if (hitWall || snake.some(s => s.x === head.x && s.y === head.y)) return gameOver();
+    snake.unshift(head);
+    if (head.x === food.x && head.y === food.y) {
+      score++; set('score', score); sfx.eat(); placeFood();
+    } else snake.pop();
+    draw();
+  }
+
+  function gameOver() {
+    clearInterval(timer); timer = null; alive = false; sfx.lose();
+    if (score > store.get('snake', 0)) store.set('snake', score);
+    set('best', store.get('snake', 0));
+    msg.textContent = 'Game over! Score: ' + score; msg.className = 'msg lose';
+  }
+
+  // Change direction (ignore 180-degree turns); the first move starts the game
+  function turn(x, y) {
+    if (!alive || (dir.x + x === 0 && dir.y + y === 0)) return;
+    next = { x, y };
+    if (!timer) { timer = setInterval(step, 120); msg.textContent = ''; }
+  }
+
+  const KEYS = { ArrowUp:[0,-1], ArrowDown:[0,1], ArrowLeft:[-1,0], ArrowRight:[1,0], w:[0,-1], s:[0,1], a:[-1,0], d:[1,0] };
+  function onKey(e) {
+    const k = KEYS[e.key]; if (!k) return;
+    e.preventDefault(); turn(k[0], k[1]);
+  }
+  document.addEventListener('keydown', onKey);
+
+  area.querySelectorAll('.dpad button').forEach(b => b.addEventListener('click', () => {
+    const [x, y] = b.dataset.d.split(',').map(Number); turn(x, y);
+  }));
+
+  // Swipe support for touch screens
+  let tx, ty;
+  cv.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+  cv.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+    if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) return;
+    if (Math.abs(dx) > Math.abs(dy)) turn(dx > 0 ? 1 : -1, 0); else turn(0, dy > 0 ? 1 : -1);
+  });
+
+  function start() {
+    clearInterval(timer); timer = null;
+    snake = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
+    dir = next = { x: 1, y: 0 }; score = 0; alive = true;
+    placeFood(); draw();
+    set('score', 0); set('best', store.get('snake', 0));
+    msg.textContent = 'Arrow keys, WASD, swipe or the buttons to start'; msg.className = 'msg';
+  }
+  start();
+  return { restart: start, stop: () => { clearInterval(timer); document.removeEventListener('keydown', onKey); } };
+}
+
+/* ===== NUMBER GUESSING (1 - 100) ===== */
+function guessingGame(area, ui) {
+  const set = ui.stats([['tries','Attempts'], ['best','Best (fewest)'], ['wins','Wins']]);
+  let secret, tries, wins = 0, done;
+
+  function start() {
+    secret = Math.floor(Math.random() * 100) + 1; tries = 0; done = false;
+    area.innerHTML = `<p>I'm thinking of a number from 1 to 100.</p>
+      <p class="msg">Can you guess it?</p>
+      <div class="guess"><input type="number" min="1" max="100" inputmode="numeric" placeholder="?" aria-label="Your guess"><button class="btn">Guess</button></div>
+      <p class="hist" style="margin-top:1rem;opacity:.8"></p>`;
+    const input = area.querySelector('input'), msg = area.querySelector('.msg'), hist = area.querySelector('.hist');
+    function guess() {
+      if (done) return;
+      const n = parseInt(input.value, 10);
+      if (!(n >= 1 && n <= 100)) { msg.textContent = 'Enter a whole number from 1 to 100'; msg.className = 'msg lose'; return; }
+      tries++; input.value = ''; input.focus();
+      hist.textContent += (hist.textContent ? ', ' : 'Your guesses: ') + n;
+      if (n === secret) {
+        done = true; wins++; input.disabled = true; sfx.win();
+        msg.textContent = `Correct! You got it in ${tries} ${tries === 1 ? 'try' : 'tries'} 🎉`; msg.className = 'msg win';
+        const best = store.get('guess', null);
+        if (best === null || tries < best) store.set('guess', tries);
+      } else {
+        sfx.click();
+        msg.textContent = n < secret ? '⬆️ Too low, go higher' : '⬇️ Too high, go lower'; msg.className = 'msg';
+      }
+      set('tries', tries); set('wins', wins); set('best', store.get('guess', '-'));
+    }
+    area.querySelector('.btn').addEventListener('click', guess);
+    input.addEventListener('keydown', e => { if (e.key === 'Enter') guess(); });
+    set('tries', 0); set('wins', wins); set('best', store.get('guess', '-'));
+  }
+  start();
+  return { restart: start, stop() {} };
+}
+
+/* ===== MEMORY CARD MATCHING (8 pairs) ===== */
+function memoryGame(area, ui) {
+  const ICONS = ['🍎', '🚀', '🎸', '🐱', '⚽', '🍕', '🌈', '👑'];
+  const set = ui.stats([['moves','Moves'], ['pairs','Pairs'], ['best','Best (fewest)']]);
+  let first, lock, moves, pairs, timer;
+
+  function start() {
+    clearTimeout(timer); first = null; lock = false; moves = 0; pairs = 0;
+    const deck = [...ICONS, ...ICONS];
+    for (let i = deck.length - 1; i > 0; i--) { // Fisher-Yates shuffle
+      const j = Math.floor(Math.random() * (i + 1)); [deck[i], deck[j]] = [deck[j], deck[i]];
+    }
+    area.innerHTML = '<div class="memory">' + deck.map(ic =>
+      `<button class="mcard" data-icon="${ic}" aria-label="Hidden card"><span class="inner"><span class="face front">?</span><span class="face back">${ic}</span></span></button>`
+    ).join('') + '</div><p class="msg">Find all the pairs</p>';
+    const msg = area.querySelector('.msg');
+
+    area.querySelectorAll('.mcard').forEach(card => card.addEventListener('click', () => {
+      if (lock || card === first || card.classList.contains('flipped')) return;
+      card.classList.add('flipped'); sfx.flip();
+      if (!first) { first = card; return; }
+      moves++; set('moves', moves);
+      if (first.dataset.icon === card.dataset.icon) {           // it's a match
+        first.classList.add('matched'); card.classList.add('matched');
+        first = null; pairs++; set('pairs', pairs); sfx.eat();
+        if (pairs === ICONS.length) {
+          sfx.win(); msg.textContent = `You won in ${moves} moves! 🎉`; msg.className = 'msg win';
+          const best = store.get('memory', null);
+          if (best === null || moves < best) store.set('memory', moves);
+          set('best', store.get('memory', '-'));
+        }
+      } else {                                                  // not a match: flip back
+        lock = true; const a = first, b = card; first = null;
+        timer = setTimeout(() => { a.classList.remove('flipped'); b.classList.remove('flipped'); lock = false; }, 800);
+      }
+    }));
+    set('moves', 0); set('pairs', 0); set('best', store.get('memory', '-'));
+  }
+  start();
+  return { restart: start, stop: () => clearTimeout(timer) };
+}
+
+/* ---------- 4) SITE NAVIGATION ---------- */
+// scoreKey is the localStorage key; fmt turns the saved value into text for the card
+const GAMES = [
+  { title: 'Tic Tac Toe',       icon: '⭕', c1: '#4cc9f0', c2: '#4361ee', desc: 'Beat the computer in a battle of X and O.',        fn: ticTacToe,         key: 'ttt',    fmt: v => v + ' wins' },
+  { title: 'Rock Paper Scissors', icon: '✂️', c1: '#ff9e00', c2: '#ff2d95', desc: 'Pick fast and build a winning streak.',          fn: rockPaperScissors, key: 'rps',    fmt: v => v + ' streak' },
+  { title: 'Snake',             icon: '🐍', c1: '#3ddc97', c2: '#06a77d', desc: 'Eat, grow and do not hit the walls.',               fn: snakeGame,         key: 'snake',  fmt: v => v + ' points' },
+  { title: 'Number Guessing',   icon: '🔢', c1: '#f72585', c2: '#7209b7', desc: 'Find the secret number from 1 to 100.',             fn: guessingGame,      key: 'guess',  fmt: v => v + ' tries' },
+  { title: 'Memory Match',      icon: '🃏', c1: '#ffd23f', c2: '#ee6c4d', desc: 'Flip cards and match every pair.',                  fn: memoryGame,        key: 'memory', fmt: v => v + ' moves' }
+];
+
+let current = null; // the game that is currently open
+
+// Build the game cards (also re-run after a game closes to refresh best scores)
+function renderCards() {
+  $('#grid').innerHTML = '';
+  GAMES.forEach((g, i) => {
+    const best = store.get(g.key, null);
+    const card = document.createElement('article');
+    card.className = 'card';
+    card.style.setProperty('--c1', g.c1); card.style.setProperty('--c2', g.c2);
+    card.innerHTML = `<div class="icon">${g.icon}</div><h3>${g.title}</h3><p>${g.desc}</p>
+      <small>${best !== null ? 'Best: ' + g.fmt(best) : 'No score yet'}</small>
+      <button class="btn">Play Now</button>`;
+    card.querySelector('.btn').addEventListener('click', () => openGame(i));
+    $('#grid').appendChild(card);
+  });
+}
+
+// The `ui` object each game receives: stats() draws score boxes and returns a setter
+const ui = {
+  stats(list) {
+    $('#stats').innerHTML = list.map(([k, label]) => `<div class="stat"><b data-k="${k}">0</b><span>${label}</span></div>`).join('');
+    return (key, value) => { const el = $(`#stats [data-k="${key}"]`); if (el) el.textContent = value; };
+  }
+};
+
+function openGame(i) {
+  if (current) current.stop();
+  const g = GAMES[i];
+  $('#site').hidden = true; $('#play').hidden = false;
+  $('#playTitle').textContent = g.icon + ' ' + g.title;
+  current = g.fn($('#area'), ui);
+  window.scrollTo(0, 0); sfx.click();
+}
+
+function closeGame() {
+  if (!current) return;
+  current.stop(); current = null;
+  $('#play').hidden = true; $('#site').hidden = false;
+  $('#area').innerHTML = ''; renderCards();
+}
+
+$('#backBtn').addEventListener('click', () => { closeGame(); $('#games').scrollIntoView(); sfx.click(); });
+$('#restartBtn').addEventListener('click', () => { if (current) { current.restart(); sfx.click(); } });
+
+// Nav links: close any open game, then scroll to the chosen section
+document.querySelectorAll('[data-go]').forEach(a => a.addEventListener('click', e => {
+  e.preventDefault(); closeGame();
+  $('#' + a.dataset.go).scrollIntoView(); $('#menu').classList.remove('open');
+}));
+$('#burger').addEventListener('click', () => $('#menu').classList.toggle('open'));
+
+/* ---------- 5) THEME, SOUND TOGGLE, CONTACT FORM ---------- */
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $('#themeBtn').textContent = t === 'dark' ? '🌙' : '☀️';
+  store.set('theme', t);
+}
+$('#themeBtn').addEventListener('click', () => {
+  applyTheme(document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark'); sfx.click();
+});
+
+function applySound() { $('#soundBtn').textContent = soundOn ? '🔊' : '🔇'; store.set('sound', soundOn); }
+$('#soundBtn').addEventListener('click', () => { soundOn = !soundOn; applySound(); sfx.click(); });
+
+$('#contactForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const msg = $('#formMsg');
+  const ok = $('#cName').value.trim() && /\S+@\S+\.\S+/.test($('#cEmail').value) && $('#cMsg').value.trim();
+  msg.textContent = ok ? 'Thanks! Your message was sent (demo form).' : 'Please fill in your name, a valid email and a message.';
+  msg.className = ok ? 'win' : 'lose';
+  if (ok) e.target.reset();
+});
+
+// Start up
+applyTheme(store.get('theme', 'dark'));
+applySound();
+renderCards();
+
+</script>
+</body>
+</html>
